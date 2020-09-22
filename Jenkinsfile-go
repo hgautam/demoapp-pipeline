@@ -1,0 +1,56 @@
+pipeline {
+    agent {label 'master'}
+    tools {
+        go 'go'
+    }
+    environment {
+        GO114MODULE = 'on'
+        CGO_ENABLED = 0 
+        GOPATH = "${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"
+    }
+    stages {        
+        stage('Pre-build') {
+            steps {
+                echo 'Installing dependencies'
+                sh 'go version'
+                sh 'go get -u golang.org/x/lint/golint'
+                //sh 'rm test'
+                //sh 'rm output/test'
+                //sh 'rm output/demoapp'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                echo 'get the source code'
+                git 'https://github.com/hgautam/demoapp-pipeline.git'
+                echo 'Compiling and building'
+                sh 'ls -l'
+                sh 'go build -o output/demoapp'
+                sh 'ls -l'
+                sh 'ls -l output'
+                //sh './test'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                withEnv(["PATH+GO=${GOPATH}/bin"]){
+                    echo 'Running vetting'
+                    sh 'go vet .'
+                    echo 'Running linting'
+                    sh 'golint .'
+                    echo 'Running test'
+                    sh 'go test -v'
+                }
+            }
+        }
+        
+    }
+    post {
+        always {
+            echo 'hi..'
+            
+        }
+    }  
+}
