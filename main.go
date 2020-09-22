@@ -1,26 +1,9 @@
 package main
 
-import (
-	"fmt"
-	"log"
-	"net/http"
-)
+import "fmt"
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	title := "Demoapp-pipeline golang example"
-
-	from := ""
-	if r.URL != nil {
-		from = r.URL.String()
-	}
-	if from != "/favicon.ico" {
-		log.Printf("title: %s\n", title)
-	}
-       
-    fmt.Fprintf(w, "Hello from:  "+title+"\n")          
-}
+// this is a comment
 
 func main() {
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(":8081", nil)
+    fmt.Println("Hello World")
 }
