@@ -14,9 +14,6 @@ pipeline {
                 echo 'Installing dependencies'
                 sh 'go version'
                 sh 'go get -u golang.org/x/lint/golint'
-                //sh 'rm test'
-                //sh 'rm output/test'
-                //sh 'rm output/demoapp'
             }
         }
         
@@ -25,11 +22,7 @@ pipeline {
                 echo 'get the source code'
                 git 'https://github.com/hgautam/demoapp-pipeline.git'
                 echo 'Compiling and building'
-                sh 'ls -l'
                 sh 'go build -o output/demoapp'
-                sh 'ls -l'
-                sh 'ls -l output'
-                //sh './test'
             }
         }
 
