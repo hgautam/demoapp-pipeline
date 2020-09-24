@@ -1,49 +1,114 @@
 pipeline {
-    agent {label 'master'}
-    tools {
-        go 'go'
-    }
-    environment {
-        GO114MODULE = 'on'
-        CGO_ENABLED = 0 
-        GOPATH = "${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"
-    }
-    stages {        
-        stage('Pre-build') {
-            steps {
-                echo 'Installing dependencies'
-                sh 'go version'
-                sh 'go get -u golang.org/x/lint/golint'
-            }
+  agent none
+  stages {
+    stage('Pre-build') {
+      agent {
+        node {
+          label 'master'
         }
-        
+      }
+      environment {
+        GOPATH = "${PKG_PATH}"
+      }
+      steps {
+        echo 'Installing dependencies'
+        sh 'go get -u golang.org/x/lint/golint'
+        sh 'go version'
+      }
+    }
+
+    stage('Build') {
+      parallel {
         stage('Build') {
-            steps {
-                echo 'get the source code'
-                git 'https://github.com/hgautam/demoapp-pipeline.git'
-                echo 'Compiling and building'
-                sh 'go build -o output/demoapp'
+          agent {
+            node {
+              label 'master'
             }
+          }
+          steps {
+            echo 'Compiling and building'
+            sh 'go build -o output/demoapp'
+            stash(name: 'mygo', includes: 'output/demoapp')
+          }
         }
 
-        stage('Test') {
-            steps {
-                withEnv(["PATH+GO=${GOPATH}/bin"]){
-                    echo 'Running vetting'
-                    sh 'go vet .'
-                    echo 'Running linting'
-                    sh 'golint .'
-                    echo 'Running test'
-                    sh 'go test -v'
+        stage('Buildon1.1.5') {
+            agent {
+                node {
+                  label 'jdk8'
                 }
             }
+          steps {
+            echo 'Running build on go version 1.15....'
+          }
         }
-        
+
+      }
     }
-    post {
-        always {
-            echo 'hi..'
-            
+
+    stage('Test') {
+      agent {
+        node {
+          label 'master'
         }
-    }  
+
+      }
+      steps {
+        withEnv(overrides: ["PATH+GO=${PKG_PATH}/bin"]) {
+          echo 'Running vetting'
+          sh 'go vet .'
+          echo 'Running linting'
+          sh 'which golint'
+          sh 'golint .'
+          echo 'Running test'
+          sh 'go test -v'
+        }
+
+      }
+    }
+
+    stage('Confirm Deploy') {
+      when {
+        branch 'master'
+      }
+      steps {
+        input(message: 'Okay to Deploy to Staging?', ok: 'Let\'s Do it!')
+      }
+    }
+
+    stage('deploy') {
+      agent {
+        node {
+          label 'jdk8'
+        }
+
+      }
+      when {
+        branch 'master'
+      }
+      steps {
+        sh 'pwd'
+        sh 'ls -lrt output'
+        unstash 'mygo'
+        sh 'ls -lrt output'
+        sh './output/demoapp'
+      }
+    }
+
+  }
+  tools {
+    go 'go'
+  }
+  environment {
+    GO114MODULE = 'on'
+    CGO_ENABLED = 0
+    GOPATH = "${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"
+    PKG_PATH = '/home/jenkins/pkgs'
+  }
+  post {
+    always {
+      echo 'hi..'
+    }
+
+  }
 }
