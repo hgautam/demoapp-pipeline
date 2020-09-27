@@ -11,6 +11,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo "Running tests in branch ${env.BRANCH_NAME} ...."
+                echo "update number 2 on GitHub"
             }
         }
     }
