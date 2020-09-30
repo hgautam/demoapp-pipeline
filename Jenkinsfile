@@ -4,7 +4,6 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Running build in branch ${env.BRANCH_NAME} ...."
-                echo "GitHub webhook test"
             }
         }
         stage('Test') {
