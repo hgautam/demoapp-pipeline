@@ -18,7 +18,7 @@ pipeline {
     stage('Build') {
       failFast true
       parallel {
-        stage('Build1.14') {
+        stage('Build1.17') {
           agent {
             node {
               label 'master'
@@ -35,7 +35,7 @@ pipeline {
             sh 'go build -o output/demoapp'
           }
         }
-        stage('Build1.15') {
+        stage('Build1.16') {
           agent {
             node {
               label 'jdk8'
@@ -93,7 +93,7 @@ pipeline {
     go 'go'
   }
   environment {
-    GO114MODULE = 'on'
+    GO111MODULE = 'auto'
     CGO_ENABLED = 0
     GOPATH = "${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"
     PKG_PATH = '/home/jenkins/pkgs'
