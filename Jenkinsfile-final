@@ -24,15 +24,16 @@ pipeline {
               label 'go-1.17'
             }
           }
-          post {
-            success {
-              stash(name: 'my-app', includes: 'output/demoapp')
-            }
-          }
+          
           steps {
             echo 'Compiling and building'
             echo "Building on ${NODE_NAME}"
             sh 'go build -o output/demoapp'
+          }
+          post {
+            success {
+              stash(name: 'my-app', includes: 'output/demoapp')
+            }
           }
         }
         stage('Build1.16') {
