@@ -21,7 +21,7 @@ pipeline {
         stage('Build1.17') {
           agent {
             node {
-              label 'master'
+              label 'go-1.17'
             }
           }
           post {
@@ -38,7 +38,7 @@ pipeline {
         stage('Build1.16') {
           agent {
             node {
-              label 'jdk8'
+              label 'go-1.16'
             }
           }
           steps {
